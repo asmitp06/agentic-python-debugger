@@ -88,6 +88,15 @@ def print_summary(state: AgentState):
     print("\n── Final Code ─────────────────────────────────────")
     print(state.current_code)
 
+    # Save the corrected code to a file
+    import os
+    base_name = os.path.basename(filepath)
+    name_without_ext = os.path.splitext(base_name)[0]
+    corrected_filepath = f"corrected_{name_without_ext}.py"
+    with open(corrected_filepath, "w") as f:
+        f.write(state.current_code)
+    print(f"\n✓ Corrected code saved to: {corrected_filepath}")
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
