@@ -2,7 +2,9 @@ from state import AgentState
 import re
 import json
 from typing import Dict, Any, List
-from utils.llm_client import call_llm  # same client as fixer/analyzer
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import JsonOutputParser
+from utils.llm_client import llm  # Import the LangChain LLM instance
 
 # Global counter for stub mode behavior (optional, mirrors analyzer style)
 critic_call_count = 0
@@ -84,50 +86,23 @@ def critique(state: AgentState) -> AgentState:
         })
         return state
 
-    # Real LLM mode
-    user_prompt = f"""## Code:
-```python
-{state.current_code}
-```
-
-## Context (optional high-level intent or constraints):
-{state.context or "No additional context provided."}
-
-The code already passes its tests. Review it for readability, maintainability, and basic performance.
-Be concrete and reference exact line numbers."""
-
-    response = call_llm(SYSTEM_PROMPT, user_prompt)
-
-    # Strip accidental markdown fences
-    response = re.sub(r"^```(?:json|python)?\n?|```$", "", response.strip(), flags=re.MULTILINE).strip()
-
-    try:
-        critic_json = json.loads(response)
-
-        # Minimal schema validation
-        if not isinstance(critic_json.get("approved"), bool):
-            raise ValueError("Missing or invalid 'approved' field")
-        if not isinstance(critic_json.get("summary"), str):
-            raise ValueError("Missing or invalid 'summary' field")
-        if not isinstance(critic_json.get("review_items"), list):
-            raise ValueError("Missing or invalid 'review_items' field")
-
-    except (json.JSONDecodeError, ValueError) as e:
-        # Fallback if LLM output is bad
-        critic_json = {
-            "approved": True,
-            "summary": f"Critic failed to parse LLM output; auto-approving. Reason: {str(e)}",
-            "review_items": []
-        }
-        state.log("critic", {
-            "error": f"Invalid JSON from LLM: {str(e)}",
-            "raw_output_preview": response[:200]
-        })
+    # Real LLM mode using LangChain chain
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", SYSTEM_PROMPT),
+        ("human", "## Code:\n```python\n{code}\n```\n\n## Context (optional high-level intent or constraints):\n{context}\n\nThe code already passes its tests. Review it for readability, maintainability, and basic performance.\nBe concrete and reference exact line numbers."),
+    ])
+    parser = JsonOutputParser()
+    chain = prompt | llm | parser
+    critic_json = chain.invoke({
+        "code": state.current_code,
+        "context": state.context or "No additional context provided."
+    })
 
     state.critic_json = critic_json
     state.log("critic", {
-        "summary": critic_json["summary"][:120],
+        "summary": critic_json["summary"],
         "approved": critic_json["approved"],
-        "review_item_count": len(critic_json["review_items"])
+        "review_item_count": len(critic_json["review_items"]),
+        "call": critic_call_count
     })
     return state

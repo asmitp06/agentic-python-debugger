@@ -1,5 +1,6 @@
 import re
-from utils.llm_client import call_llm
+from langchain_core.prompts import ChatPromptTemplate
+from utils.llm_client import llm  # Import the LangChain LLM instance
 from state import AgentState
 
 SYSTEM_PROMPT = """You are an expert software engineer and debugger.
@@ -29,17 +30,16 @@ def fix(state: AgentState) -> AgentState:
         for i in issues
     )
 
-    user_prompt = f"""## Code:
-```python
-{state.current_code}
-```
-
-## {feedback_label}:
-{issues_text}
-
-Return ONLY the fixed Python code. No markdown, no explanation."""
-
-    fixed = call_llm(SYSTEM_PROMPT, user_prompt)
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", SYSTEM_PROMPT),
+        ("human", "## Code:\n```python\n{code}\n```\n\n## {feedback_label}:\n{issues}\n\nReturn ONLY the fixed Python code. No markdown, no explanation."),
+    ])
+    chain = prompt | llm
+    fixed = chain.invoke({
+        "code": state.current_code,
+        "feedback_label": feedback_label,
+        "issues": issues_text
+    }).content.strip()
     # Strip accidental fences
     fixed = re.sub(r"^```(?:python)?\n?|```$", "", fixed.strip(), flags=re.MULTILINE).strip()
 
