@@ -7,7 +7,7 @@ You will be given code and a list of specific issues with exact line numbers.
 Fix ONLY the listed issues. Do not change anything else.
 Return ONLY the corrected code. No explanations, no markdown fences."""
 
-STUB_MODE = True   # flip to False when ready for real LLM calls
+STUB_MODE = False   # flip to False when ready for real LLM calls
 
 def fix(state: AgentState) -> AgentState:
     if STUB_MODE:

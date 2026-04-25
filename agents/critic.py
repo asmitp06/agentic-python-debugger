@@ -35,10 +35,10 @@ If the code is good enough to ship, set "approved": true and "review_items": [].
 Be specific about line numbers and suggestions. Do NOT include Markdown fences."""
 
 
-STUB_MODE = True  # flip to False when ready for real LLM calls
+STUB_MODE = False  # flip to False when ready for real LLM calls
 
 
-def critic(state: AgentState) -> AgentState:
+def critique(state: AgentState) -> AgentState:
     """
     Critic: reviews code quality and optimization.
     Input:   state.current_code, state.context (optional)
