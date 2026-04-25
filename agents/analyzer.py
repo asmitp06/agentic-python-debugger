@@ -13,21 +13,9 @@ SYSTEM_PROMPT = """You are an expert software debugger and analyzer.
 Analyze the code, context, and executor output. Identify specific errors with line numbers.
 
 Return ONLY valid JSON matching this exact schema:
-{
-  "is_correct": boolean,
-  "summary": "Brief one-sentence explanation of the main issues",
-  "issues": [
-    {
-      "line": number (1-based line number),
-      "type": string ("SyntaxError", "RuntimeError", "AssertionError", "LogicError", "EdgeCase", "Performance"),
-      "message": "Exact error message or description",
-      "cause": "Why this error happened",
-      "fix_hint": "Specific suggestion for how to fix it"
-    }
-  ]
-}
+issues array with line, type, message, cause, fix_hint fields.
 
-If there are NO errors, set "is_correct": true and "issues": [].
+If there are NO errors, set is_correct true and issues empty.
 If multiple errors, list them all with specific line numbers.
 Be precise about line numbers. Use context to understand expected behavior."""
 
@@ -39,11 +27,15 @@ def analyze(state: AgentState) -> AgentState:
     # Use LangChain chain for analysis
     prompt = ChatPromptTemplate.from_messages([
         ("system", SYSTEM_PROMPT),
-        ("human", f"Code:\n{state.current_code}\n\nContext: {state.context}\n\nExecution Output: {state.execution_output}"),
+        ("human", "Code:\n{code}\n\nContext: {context}\n\nExecution Output: {execution}"),
     ])
     parser = JsonOutputParser()
     chain = prompt | llm | parser
-    analyzer_json = chain.invoke({})
+    analyzer_json = chain.invoke({
+        "code": state.current_code,
+        "context": state.context,
+        "execution": state.executor_json
+    })
     
     state.analyzer_json = analyzer_json
     state.log("analyzer", {"summary": f"Analyzer call #{call_count}, is_correct={analyzer_json.get('is_correct', False)}"})

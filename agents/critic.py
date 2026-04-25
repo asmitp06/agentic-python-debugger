@@ -37,10 +37,10 @@ If the code is good enough to ship, set "approved": true and "review_items": [].
 Be specific about line numbers and suggestions. Do NOT include Markdown fences."""
 
 
-STUB_MODE = True  # flip to False when ready for real LLM calls
+STUB_MODE = False  # flip to False when ready for real LLM calls
 
 
-def critic(state: AgentState) -> AgentState:
+def critique(state: AgentState) -> AgentState:
     """
     Critic: reviews code quality and optimization.
     Input:   state.current_code, state.context (optional)
@@ -89,20 +89,14 @@ def critic(state: AgentState) -> AgentState:
     # Real LLM mode using LangChain chain
     prompt = ChatPromptTemplate.from_messages([
         ("system", SYSTEM_PROMPT),
-        ("human", f"""## Code:
-```python
-{state.current_code}
-```
-
-## Context (optional high-level intent or constraints):
-{state.context or "No additional context provided."}
-
-The code already passes its tests. Review it for readability, maintainability, and basic performance.
-Be concrete and reference exact line numbers."""),
+        ("human", "## Code:\n```python\n{code}\n```\n\n## Context (optional high-level intent or constraints):\n{context}\n\nThe code already passes its tests. Review it for readability, maintainability, and basic performance.\nBe concrete and reference exact line numbers."),
     ])
     parser = JsonOutputParser()
     chain = prompt | llm | parser
-    critic_json = chain.invoke({})
+    critic_json = chain.invoke({
+        "code": state.current_code,
+        "context": state.context or "No additional context provided."
+    })
 
     state.critic_json = critic_json
     state.log("critic", {
@@ -110,18 +104,5 @@ Be concrete and reference exact line numbers."""),
         "approved": critic_json["approved"],
         "review_item_count": len(critic_json["review_items"]),
         "call": critic_call_count
-    })
-    return state
-        }
-        state.log("critic", {
-            "error": f"Invalid JSON from LLM: {str(e)}",
-            "raw_output_preview": response[:200]
-        })
-
-    state.critic_json = critic_json
-    state.log("critic", {
-        "summary": critic_json["summary"][:120],
-        "approved": critic_json["approved"],
-        "review_item_count": len(critic_json["review_items"])
     })
     return state

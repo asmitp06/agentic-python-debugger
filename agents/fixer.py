@@ -8,7 +8,7 @@ You will be given code and a list of specific issues with exact line numbers.
 Fix ONLY the listed issues. Do not change anything else.
 Return ONLY the corrected code. No explanations, no markdown fences."""
 
-STUB_MODE = True   # flip to False when ready for real LLM calls
+STUB_MODE = False   # flip to False when ready for real LLM calls
 
 def fix(state: AgentState) -> AgentState:
     if STUB_MODE:
@@ -32,18 +32,14 @@ def fix(state: AgentState) -> AgentState:
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", SYSTEM_PROMPT),
-        ("human", f"""## Code:
-```python
-{state.current_code}
-```
-
-## {feedback_label}:
-{issues_text}
-
-Return ONLY the fixed Python code. No markdown, no explanation."""),
+        ("human", "## Code:\n```python\n{code}\n```\n\n## {feedback_label}:\n{issues}\n\nReturn ONLY the fixed Python code. No markdown, no explanation."),
     ])
     chain = prompt | llm
-    fixed = chain.invoke({}).content.strip()
+    fixed = chain.invoke({
+        "code": state.current_code,
+        "feedback_label": feedback_label,
+        "issues": issues_text
+    }).content.strip()
     # Strip accidental fences
     fixed = re.sub(r"^```(?:python)?\n?|```$", "", fixed.strip(), flags=re.MULTILINE).strip()
 
