@@ -1,5 +1,9 @@
 import sys
+import os
 from state import AgentState
+import tkinter as tk
+from tkinter import filedialog
+from tkinter import simpledialog
 
 def load_code(filepath: str) -> str:
     with open(filepath, "r") as f:
@@ -88,21 +92,47 @@ def print_summary(state: AgentState):
     print("\n── Final Code ─────────────────────────────────────")
     print(state.current_code)
 
-    # Save the corrected code to a file
-    import os
     base_name = os.path.basename(filepath)
     name_without_ext = os.path.splitext(base_name)[0]
-    corrected_filepath = f"corrected_{name_without_ext}.py"
+    corrected_filepath = f"corrected/{name_without_ext}.py"
+    os.makedirs("corrected", exist_ok=True)
     with open(corrected_filepath, "w") as f:
         f.write(state.current_code)
     print(f"\n✓ Corrected code saved to: {corrected_filepath}")
 
+class MultiLineInputDialog(simpledialog.Dialog):
+    def __init__(self, parent, title, prompt):
+        self.prompt = prompt
+        self.result = None
+        super().__init__(parent, title=title)
 
+    def body(self, master):
+        tk.Label(master, text=self.prompt).pack(padx=5, pady=5)
+        self.text = tk.Text(master, width=60, height=10)
+        self.text.pack(padx=5, pady=5)
+        return self.text  # Focus the text widget
+
+    def apply(self):
+        # Retrieve the text from the widget on "OK"
+        self.result = self.text.get("1.0", tk.END).strip()
+
+def get_context_multiline():
+    root = tk.Tk()
+    root.withdraw()
+    dialog = MultiLineInputDialog(root, "Context Input", "Enter detailed processing context:")
+    root.destroy()
+    return dialog.result if dialog.result else "No context provided."
+
+# Usage in your main.py:
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python main.py <file.py> [context]")
-        sys.exit(1)
-
-    filepath = sys.argv[1]
-    context  = sys.argv[2] if len(sys.argv) > 2 else "No context provided."
+        # File selector + Multi-line context dialog
+        filepath = filedialog.askopenfilename(title="Select a file to process")
+        if not filepath: sys.exit(1)
+        context = get_context_multiline()
+    else:
+        # CLI args provided: use them directly
+        filepath = sys.argv[1]
+        context = sys.argv[2] if len(sys.argv) > 2 else "No context provided."
+    
     run_pipeline(filepath, context)

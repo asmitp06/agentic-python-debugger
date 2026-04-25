@@ -19,7 +19,8 @@ Focus on:
 - Missing variables or undefined names
 
 Please fix the minimum viable error.
-Ensure not to over complicate it, just fix core errors that impede the program from filling out its intended functionality.
+Ensure not to over complicate it, just fix core errors that impede the program from filling out its intended functionality. 
+Specifically focus on fixing any immediate runtime and syntax errors, and stuff the context wants you to fix.
 
 Return ONLY valid JSON in this exact schema:
 {{
