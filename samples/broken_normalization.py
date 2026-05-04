@@ -1,4 +1,3 @@
-```py
 # Task: Given a list of student scores, normalize them (0–100 scale),
 # assign letter grades, and print a summary report.
 
@@ -76,4 +75,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
