@@ -20,18 +20,18 @@ Focus on:
 - Basic performance issues (e.g., obvious O(n^2) where O(n) is trivial)
 
 Return ONLY valid JSON in this exact schema:
-{
+{{
   "approved": boolean,
   "summary": "One-sentence overall assessment.",
   "review_items": [
-    {
+    {{
       "line": number (1-based line number),
       "type": "Naming" | "Style" | "Structure" | "Performance" | "Docs" | "Other",
       "message": "Short description of the issue.",
       "suggestion": "Concrete suggestion for improvement."
-    }
+    }}
   ]
-}
+}}
 
 If the code is good enough to ship, set "approved": true and "review_items": [].
 Be specific about line numbers and suggestions. Do NOT include Markdown fences."""

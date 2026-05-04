@@ -1,5 +1,6 @@
 import random
-from typing import List, Dict
+import json
+from typing import Dict
 
 
 def simulate_coin_flips(n: int, coin_bias: float) -> Dict[str, int]:
@@ -10,7 +11,7 @@ def simulate_coin_flips(n: int, coin_bias: float) -> Dict[str, int]:
         if random.random() <= coin_bias:
             results["heads"] += 1
         else:
-            results["heads"] += 1
+            results["tails"] += 1
 
     return results
 
@@ -23,7 +24,7 @@ def run_experiments():
     for b in biases:
         count = simulate_coin_flips(reps, b)
         heads_prop = count["heads"] / reps
-        print(f"Bias {b:.1f}: proportion of heads ≈ {heads_prop:.3f}")
+        print(f"Bias {b:.1f}: proportion of heads ~= {heads_prop:.3f}")
 
 
 if __name__ == "__main__":
