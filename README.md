@@ -13,3 +13,10 @@ Executer(code, context)  = CodeRunner(code, TestCaseMaker(code, context)) --> JS
 Analyzer(code, context, ExecuterJSON) --> bad it gives json of what lines in the code there are errors, what the errors are, and ideas on how to fix, as well as the a boolean for good or bad
 Fixer(code, AnalyzerJSON) --> fixed code
 Critic(fixed code, context) --> boolean for is it good and optimized as well as a JSON of what lines are badly written, need more comments, or other code review information for fixer
+
+Execution Intructions:
+
+1. Write in the command line -> py main.py [argument1] [argument2]
+    argument1 = path of python file
+    argument2 = path of txt file containing context
+2. If no arguements are given, there will be a GUI pop-ups of file explorer for each argument
