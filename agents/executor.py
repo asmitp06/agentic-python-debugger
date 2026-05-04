@@ -1,18 +1,14 @@
 # agents/executor.py
-import json
 import os
 import subprocess
 import sys
 import tempfile
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from agents.testcase_maker import make_test_cases
 from state import AgentState
 
 def run_executor(file_path: str, context: str) -> dict:
     with open(file_path, 'r') as f:
         code = f.read()
-    
-    test_cases = make_test_cases(code, context)
     
     # Check compilation
     try:
@@ -29,8 +25,6 @@ def run_executor(file_path: str, context: str) -> dict:
         return {
             "compiled": compiled,
             "ran": False,
-            "generated_tests": test_cases,
-            "test_results": [],
             "error_type": error_type,
             "error_message": error_message,
             "traceback": traceback,
@@ -60,42 +54,9 @@ def run_executor(file_path: str, context: str) -> dict:
         error_message = str(e)
         traceback = ""
     
-    # Run tests
-    test_results = []
-    for i, test in enumerate(test_cases):
-        try:
-            result = subprocess.run(["python", file_path], input=test["input"], capture_output=True, text=True, timeout=10)
-            actual = result.stdout.strip()
-            status = "pass" if actual == test["expected"] else "fail"
-            test_results.append({
-                "test_id": i + 1,
-                "status": status,
-                "input": test["input"],
-                "expected": test["expected"],
-                "actual": actual
-            })
-        except subprocess.TimeoutExpired:
-            test_results.append({
-                "test_id": i + 1,
-                "status": "fail",
-                "input": test["input"],
-                "expected": test["expected"],
-                "actual": "TimeoutError"
-            })
-        except Exception as e:
-            test_results.append({
-                "test_id": i + 1,
-                "status": "fail",
-                "input": test["input"],
-                "expected": test["expected"],
-                "actual": str(e)
-            })
-    
     return {
         "compiled": compiled,
         "ran": ran,
-        "generated_tests": test_cases,
-        "test_results": test_results,
         "error_type": error_type,
         "error_message": error_message,
         "traceback": traceback,
