@@ -13,8 +13,6 @@ SYSTEM_PROMPT = """You are a senior code reviewer.
 Your job is to review code that already passes tests and decide if it is good enough to ship.
 
 Focus on:
-- Readability and naming
-- Comments and docstrings
 - Structure and duplication
 - Simplicity vs. unnecessary complexity
 - Basic performance issues (e.g., obvious O(n^2) where O(n) is trivial)
@@ -43,7 +41,7 @@ STUB_MODE = False  # flip to False when ready for real LLM calls
 def critique(state: AgentState) -> AgentState:
     """
     Critic: reviews code quality and optimization.
-    Input:   state.current_code, state.context (optional)
+    Input:   state.current_code, state.context, state.executor_json
     Output:  state.critic_json with fields: approved, summary, review_items[]
     """
     global critic_call_count
@@ -89,13 +87,14 @@ def critique(state: AgentState) -> AgentState:
     # Real LLM mode using LangChain chain
     prompt = ChatPromptTemplate.from_messages([
         ("system", SYSTEM_PROMPT),
-        ("human", "## Code:\n```python\n{code}\n```\n\n## Context (optional high-level intent or constraints):\n{context}\n\nThe code already passes its tests. Review it for readability, maintainability, and basic performance.\nBe concrete and reference exact line numbers."),
+        ("human", "## Code:\n```python\n{code}\n```\n\n## Context (optional high-level intent or constraints):\n{context}\n\n## Execution Output:\n```\n{execution}\n```\n\nThe code already passes its tests. Review it for meeting basic performance requirements. Ensure there are no glaring inefficiences or critical flaws. \nBe concrete and reference exact line numbers.\n"),
     ])
     parser = JsonOutputParser()
     chain = prompt | llm | parser
     critic_json = chain.invoke({
         "code": state.current_code,
-        "context": state.context or "No additional context provided."
+        "context": state.context or "No additional context provided.",
+        "execution": json.dumps(state.executor_json) if state.executor_json else "{}"
     })
 
     state.critic_json = critic_json

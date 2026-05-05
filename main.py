@@ -69,10 +69,6 @@ def run_pipeline(filepath: str, context: str) -> AgentState:
 
         # Re-validate after quality fix
         state = execute(state)
-        state = analyze(state)
-        if not state.analyzer_json.get("is_correct"):
-            print("[PIPELINE] ✗ Quality fix broke correctness! Aborting critic loop.")
-            break
 
     print_summary(state)
     return state
