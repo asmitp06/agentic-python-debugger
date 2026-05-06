@@ -18,9 +18,9 @@ Focus on:
 - Type mismatches
 - Missing variables or undefined names
 
-Please fix the minimum viable error.
+Please fix all of the the minimum viable errors.
 Ensure not to over complicate it, just fix core errors that impede the program from filling out its intended functionality. 
-Specifically focus on fixing any immediate runtime and syntax errors, and stuff the context wants you to fix.
+Specifically focus on fixing any immediate runtime and syntax errors, any core logical/semantic issues, and stuff the context wants you to fix.
 
 Return ONLY valid JSON in this exact schema:
 {{
@@ -95,7 +95,7 @@ def analyze(state: AgentState) -> AgentState:
     # Real LLM mode using LangChain chain
     prompt = ChatPromptTemplate.from_messages([
         ("system", SYSTEM_PROMPT),
-        ("human", "## Code:\n```python\n{code}\n```\n\n## Context (optional high-level intent):\n{context}\n\n## Execution Output:\n```\n{execution}\n```\n\nAnalyze the code and execution output. Identify all errors with specific line numbers and causes."),
+        ("human", "## Code:\n```python\n{code}\n```\n\n## Context (optional high-level intent):\n{context}\n\n## Execution Output:\n```\n{execution}\n```\n\nAnalyze the code and execution output. Identify all errors with specific line numbers and causes. While the execution output is a helpful supplement, focus on all runtime/syntax/semantic/logic errors found in the actual code"),
     ])
     parser = JsonOutputParser()
     chain = prompt | llm | parser

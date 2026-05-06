@@ -4,6 +4,7 @@ from state import AgentState
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import simpledialog
+import difflib
 
 def load_code(filepath: str) -> str:
     with open(filepath, "r") as f:
@@ -29,9 +30,11 @@ def run_pipeline(filepath: str, context: str) -> AgentState:
 
         # Step 1: Execute
         state = execute(state)
+        print(state.executor_json)
 
         # Step 2: Analyze
         state = analyze(state)
+        print(state.analyzer_json)
 
         if state.analyzer_json.get("is_correct"):
             state.passed = True
@@ -41,6 +44,15 @@ def run_pipeline(filepath: str, context: str) -> AgentState:
         # Step 3: Fix
         if state.fix_attempts < state.max_fix_attempts:
             state = fix(state)
+
+            str1 = state.original_code
+            str2 = state.current_code
+            lines1 = str1.splitlines()
+            lines2 = str2.splitlines()
+
+            diff = difflib.ndiff(lines1, lines2)
+            print('\n'.join(diff))
+
         else:
             print(f"[PIPELINE] ✗ Max fix attempts ({state.max_fix_attempts}) reached. Exiting.")
             print_summary(state)
@@ -56,6 +68,7 @@ def run_pipeline(filepath: str, context: str) -> AgentState:
 
         # Step 4: Critic
         state = critique(state)
+        print(state.critic_json)
 
         if state.critic_json.get("approved"):
             state.approved = True
