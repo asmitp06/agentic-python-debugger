@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import filedialog
 from tkinter import simpledialog
 import difflib
+import json
 
 def load_code(filepath: str) -> str:
     with open(filepath, "r") as f:
@@ -30,11 +31,13 @@ def run_pipeline(filepath: str, context: str) -> AgentState:
 
         # Step 1: Execute
         state = execute(state)
-        print(state.executor_json)
+        print("Executor Result:")
+        print(json.dumps(state.executor_json, indent=2))
 
         # Step 2: Analyze
         state = analyze(state)
-        print(state.analyzer_json)
+        print("Analyzer Result:")
+        print(json.dumps(state.analyzer_json, indent=2))
 
         if state.analyzer_json.get("is_correct"):
             state.passed = True
@@ -68,7 +71,8 @@ def run_pipeline(filepath: str, context: str) -> AgentState:
 
         # Step 4: Critic
         state = critique(state)
-        print(state.critic_json)
+        print("Critic Result:")
+        print(json.dumps(state.critic_json, indent=2))
 
         if state.critic_json.get("approved"):
             state.approved = True

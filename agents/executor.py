@@ -5,6 +5,7 @@ import sys
 import tempfile
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from state import AgentState
+import json
 
 def run_executor(file_path: str, context: str) -> dict:
     with open(file_path, 'r') as f:
