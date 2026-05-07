@@ -2,9 +2,9 @@
 
 An AI-powered automated code debugging and refactoring system that uses a multi-agent architecture to identify, fix, and optimize Python code. This system leverages Google's Gemini API to provide intelligent code analysis and corrections.
 
-## 📋 Overview
+## Overview
 
-The Agentic Python Debugger is a sophisticated debugging framework that orchestrates multiple AI agents to automatically:
+The Agentic Python Debugger is a debugging framework that orchestrates multiple AI agents to automatically:
 - **Execute** code and capture runtime errors, syntax errors, and test failures
 - **Analyze** execution results to identify root causes and pinpoint errors
 - **Fix** identified issues iteratively until the code runs correctly
@@ -12,7 +12,7 @@ The Agentic Python Debugger is a sophisticated debugging framework that orchestr
 
 This project implements an agentic workflow pattern where specialized agents collaborate to progressively improve code quality through multiple iterations.
 
-## 🏗️ Architecture
+## Architecture
 
 The system follows a 4-agent pipeline architecture:
 
@@ -44,7 +44,7 @@ The system follows a 4-agent pipeline architecture:
 ### **Iterative Loop**
 The pipeline iterates through Executor → Analyzer → Fixer until code is functionally correct (max 3 iterations). Once correct, the Critic reviews the code. If Critic flags issues, code returns to Fixer for optimization.
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Python 3.8+
@@ -90,23 +90,23 @@ The project requires the following packages (see `requirements.txt`):
 - `langchain` - LLM framework
 - `langchain-google-genai` - Gemini integration for LangChain
 
-## 📖 Usage
+## Usage
 
 ### Running the Debugger
 
 #### Command Line
 
 ```bash
-python main.py <file_path> <context_file>
+python main.py <file_path> <context>
 ```
 
 **Arguments:**
 - `<file_path>` - Path to the Python file you want to debug (e.g., `./samples/broken_logic.py`)
-- `<context_file>` - Path to a text file containing context about the code (e.g., expected behavior, requirements)
+- `<context>` - String containing context about the code (e.g., `"Facing issues when 0 is put in as an input"`)
 
 **Example:**
 ```bash
-python main.py ./samples/broken_logic.py ./context.txt
+python main.py ./samples/broken_logic.py "context"
 ```
 
 #### Interactive GUI Mode
@@ -121,57 +121,7 @@ The system will prompt you to:
 1. Select a Python file to debug
 2. Select a context file with additional information
 
-### Example Workflow
-
-1. **Create a context file** (optional but recommended):
-```
-# context.txt
-The function should calculate the factorial of a number.
-Input: 5
-Expected output: 120
-```
-
-2. **Run the debugger**:
-```bash
-python main.py samples/broken_logic.py context.txt
-```
-
-3. **Monitor the output**: The system will display:
-   - Execution results
-   - Analysis of errors
-   - Fixes applied
-   - Final code review
-
-## 📁 Project Structure
-
-```
-agentic-python-debugger/
-├── main.py                 # Entry point - orchestrates the pipeline
-├── state.py                # AgentState dataclass for pipeline state management
-├── requirements.txt        # Python dependencies
-├── README.md               # This file
-├── agents/
-│   ├── __init__.py
-│   ├── executor.py         # Executes code and captures errors
-│   ├── analyzer.py         # Analyzes execution results
-│   ├── fixer.py            # Fixes identified issues
-│   └── critic.py           # Reviews code quality and optimization
-├── utils/
-│   ├── __init__.py
-│   └── llm_client.py       # LLM integration with LangChain and Gemini
-├── samples/                # Sample broken code files for testing
-│   ├── broken_logic.py
-│   ├── broken_normalization.py
-│   ├── broken_runtime.py
-│   └── broken_syntax.py
-└── corrected/              # Reference corrected versions of samples
-    ├── broken_logic.py
-    ├── broken_normalization.py
-    ├── broken_runtime.py
-    └── broken_syntax.py
-```
-
-## 🔍 Sample Files
+## Sample Files
 
 The `samples/` directory contains test cases with intentional bugs for demonstration:
 
@@ -182,10 +132,10 @@ The `samples/` directory contains test cases with intentional bugs for demonstra
 
 Use these to test the debugging pipeline:
 ```bash
-python main.py samples/broken_syntax.py context.txt
+python main.py samples/broken_syntax.py "context"
 ```
 
-## 🛠️ Configuration
+## Configuration
 
 ### Agent Parameters
 
@@ -199,7 +149,7 @@ Configure the Gemini model in `utils/llm_client.py`:
 - **Model**: `gemini-2.5-flash` (optimized for speed and cost)
 - **Temperature**: `0.0` (deterministic responses for debugging)
 
-## 📊 Output
+## Output
 
 The system produces detailed logs for each stage:
 
@@ -225,22 +175,6 @@ Analyzer Result:
 }
 ```
 
-## 🎯 Use Cases
-
-- **Educational**: Learn how code breaks and how to fix it
-- **Development**: Automatically debug broken code during development
-- **Code Review**: Get AI-powered code quality feedback
-- **Testing**: Validate code against test cases and fix failures
-- **Refactoring**: Improve code structure and optimization
-
-## ⚠️ Limitations
-
-- Maximum 3 fix attempts per execution (prevents infinite loops)
-- Best suited for Python code debugging
-- Requires valid API key with sufficient quota
-- May not handle extremely complex code structures
-- Context file should clearly describe expected behavior
-
-## 📝 Submission Details
+## Submission Details
 - Created By: Asmit Patidar, Xhaiden D'Souza, and Shashank Karra
 - CS 301: Project Track 2: Agentic AI System Design and Multi-Step Workflow Implementation
