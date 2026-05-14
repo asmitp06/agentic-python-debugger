@@ -11,8 +11,8 @@ class AgentState:
     critic_json: Optional[dict] = None
     fix_attempts: int = 0
     critic_attempts: int = 0
-    max_fix_attempts: int = 3
-    max_critic_attempts: int = 1
+    max_fix_attempts: int = 5
+    max_critic_attempts: int = 2
     passed: bool = False
     approved: bool = False
     history: list = field(default_factory=list)
